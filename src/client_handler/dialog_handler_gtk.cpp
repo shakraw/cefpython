@@ -141,7 +141,7 @@ bool ClientDialogHandlerGtk::OnFileDialog(
     const CefString& title,
     const CefString& default_file_path,
     const std::vector<CefString>& accept_filters,
-    int selected_accept_filter,
+    // int selected_accept_filter,
     CefRefPtr<CefFileDialogCallback> callback) {
   std::vector<CefString> files;
 

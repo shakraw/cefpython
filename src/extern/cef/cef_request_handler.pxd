@@ -12,6 +12,6 @@ cdef extern from "include/cef_auth_callback.h":
         void Cancel()
 
 cdef extern from "include/cef_request_handler.h":
-    cdef cppclass CefRequestCallback:
+    cdef cppclass CefCallback:
         void Continue(cpp_bool allow)
         void Cancel()

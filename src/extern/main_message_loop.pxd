@@ -2,11 +2,13 @@
 # All rights reserved. Licensed under BSD 3-clause license.
 # Project website: https://github.com/cztomczak/cefpython
 
-from cef_scoped_ptr cimport scoped_ptr
+from libcpp.memory cimport unique_ptr
+
+from cef_scoped_refptr cimport scoped_refptr
 
 cdef extern from \
         "subprocess/main_message_loop/main_message_loop_external_pump.h":
 
     cdef cppclass MainMessageLoopExternalPump:
         @staticmethod
-        scoped_ptr[MainMessageLoopExternalPump] Create()
+        unique_ptr[MainMessageLoopExternalPump] Create()

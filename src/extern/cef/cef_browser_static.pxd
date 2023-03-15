@@ -19,6 +19,7 @@ from cef_request_context cimport CefRequestContext
 # noinspection PyUnresolvedReferences
 from cef_browser cimport CefBrowser
 from cef_string cimport CefString
+from cef_values cimport CefDictionaryValue
 
 # Specifying namespace allows to import a static method.
 cdef extern from "include/cef_browser.h" namespace "CefBrowserHost":
@@ -28,4 +29,5 @@ cdef extern from "include/cef_browser.h" namespace "CefBrowserHost":
         CefRefPtr[CefClient],
         CefString&,
         CefBrowserSettings&,
+        CefRefPtr[CefDictionaryValue],
         CefRefPtr[CefRequestContext]) nogil

@@ -12,6 +12,8 @@
 include "cefpython.pyx"
 include "utils.pyx"
 
+MAX_NESTING_LEVEL = 16
+
 # -----------------------------------------------------------------------------
 # CEF values to Python values
 # -----------------------------------------------------------------------------
@@ -56,12 +58,12 @@ cdef object CefValueToPyValue(CefRefPtr[CefValue] cefValue):
         return CefToPyString(cefValue.get().GetString())
     elif valueType == cef_types.VTYPE_DICTIONARY:
         return CefDictionaryValueToPyDict(
-                <CefRefPtr[CefBrowser]>NULL,
+                <CefRefPtr[CefBrowser]>nullptr,
                 cefValue.get().GetDictionary(),
                 1)
     elif valueType == cef_types.VTYPE_LIST:
         return CefListValueToPyList(
-                <CefRefPtr[CefBrowser]>NULL,
+                <CefRefPtr[CefBrowser]>nullptr,
                 cefValue.get().GetList(),
                 1)
     elif valueType == cef_types.VTYPE_BINARY:
@@ -89,9 +91,9 @@ cdef list CefListValueToPyList(
         CefRefPtr[CefListValue] cefListValue,
         int nestingLevel=0):
     assert cefListValue.get().IsValid(), "cefListValue is invalid"
-    if nestingLevel > 8:
-        raise Exception("CefListValueToPyList(): max nesting level (8)"
-                " exceeded")
+    if nestingLevel > MAX_NESTING_LEVEL:
+        raise Exception("CefListValueToPyList(): max nesting level (%d)"
+                " exceeded" % MAX_NESTING_LEVEL)
     cdef size_t index
     cdef size_t size = cefListValue.get().GetSize()
     cdef cef_types.cef_value_type_t valueType
@@ -150,9 +152,9 @@ cdef dict CefDictionaryValueToPyDict(
         CefRefPtr[CefDictionaryValue] cefDictionaryValue,
         int nestingLevel=0):
     assert cefDictionaryValue.get().IsValid(), "cefDictionaryValue is invalid"
-    if nestingLevel > 8:
-        raise Exception("CefDictionaryValueToPyDict(): max nesting level (8)"
-                " exceeded")
+    if nestingLevel > MAX_NESTING_LEVEL:
+        raise Exception("CefDictionaryValueToPyDict(): max nesting level (%d)"
+                " exceeded" % MAX_NESTING_LEVEL)
     cdef cpp_vector[CefString] keyList
     cefDictionaryValue.get().GetKeys(keyList)
     cdef cef_types.cef_value_type_t valueType
@@ -224,9 +226,9 @@ cdef CefRefPtr[CefListValue] PyListToCefListValue(
         object frameId,
         list pyList,
         int nestingLevel=0) except *:
-    if nestingLevel > 8:
-        raise Exception("PyListToCefListValue(): max nesting level (8)"
-                " exceeded")
+    if nestingLevel > MAX_NESTING_LEVEL:
+        raise Exception("PyListToCefListValue(): max nesting level (%d)"
+                " exceeded" % MAX_NESTING_LEVEL)
     cdef type valueType
     cdef CefRefPtr[CefListValue] ret = CefListValue_Create()
     cdef CefRefPtr[CefBinaryValue] binaryValue
@@ -238,14 +240,9 @@ cdef CefRefPtr[CefListValue] PyListToCefListValue(
             ret.get().SetNull(index)
         elif valueType == bool:
             ret.get().SetBool(index, bool(value))
-        elif valueType == int:
-            ret.get().SetInt(index, int(value))
-        elif valueType == long:
-            # Int32 range is -2147483648..2147483647, we've increased the
-            # minimum size by one as Cython was throwing a warning:
-            # "unary minus operator applied to unsigned type, result still
-            # unsigned".
-            if -2147483647 <= value <= 2147483647:
+        elif valueType == int or valueType == long:  # In Py3 int and long types are the same type.
+            # Int32 range is -2147483648..2147483647
+            if INT_MIN <= value <= INT_MAX:
                 ret.get().SetInt(index, int(value))
             else:
                 # Long values become strings.
@@ -284,9 +281,9 @@ cdef void PyListToExistingCefListValue(
         int nestingLevel=0) except *:
     # When sending process messages you must use an existing
     # CefListValue, see browser.pyx > SendProcessMessage().
-    if nestingLevel > 8:
-        raise Exception("PyListToCefListValue(): max nesting level (8)"
-                " exceeded")
+    if nestingLevel > MAX_NESTING_LEVEL:
+        raise Exception("PyListToCefListValue(): max nesting level (%d)"
+                " exceeded" % MAX_NESTING_LEVEL)
     cdef type valueType
     cdef CefRefPtr[CefListValue] newCefListValue
     cdef size_t index
@@ -297,14 +294,9 @@ cdef void PyListToExistingCefListValue(
             cefListValue.get().SetNull(index)
         elif valueType == bool:
             cefListValue.get().SetBool(index, bool(value))
-        elif valueType == int:
-            cefListValue.get().SetInt(index, int(value))
-        elif valueType == long:
-            # Int32 range is -2147483648..2147483647, we've increased the
-            # minimum size by one as Cython was throwing a warning:
-            # "unary minus operator applied to unsigned type, result still
-            # unsigned".
-            if -2147483647 <= value <= 2147483647:
+        elif valueType == int or valueType == long:  # In Py3 int and long types are the same type.
+            # Int32 range is -2147483648..2147483647
+            if INT_MIN <= value <= INT_MAX:
                 cefListValue.get().SetInt(index, int(value))
             else:
                 # Long values become strings.
@@ -342,9 +334,9 @@ cdef CefRefPtr[CefDictionaryValue] PyDictToCefDictionaryValue(
         object frameId,
         dict pyDict,
         int nestingLevel=0) except *:
-    if nestingLevel > 8:
-        raise Exception("PyDictToCefDictionaryValue(): max nesting level (8)"
-                " exceeded")
+    if nestingLevel > MAX_NESTING_LEVEL:
+        raise Exception("PyDictToCefDictionaryValue(): max nesting level (%d)"
+                " exceeded" % MAX_NESTING_LEVEL)
     cdef type valueType
     cdef CefRefPtr[CefDictionaryValue] ret = CefDictionaryValue_Create()
     cdef CefString cefKey
@@ -357,14 +349,9 @@ cdef CefRefPtr[CefDictionaryValue] PyDictToCefDictionaryValue(
             ret.get().SetNull(cefKey)
         elif valueType == bool:
             ret.get().SetBool(cefKey, bool(value))
-        elif valueType == int:
-            ret.get().SetInt(cefKey, int(value))
-        elif valueType == long:
-            # Int32 range is -2147483648..2147483647, we've increased the
-            # minimum size by one as Cython was throwing a warning:
-            # "unary minus operator applied to unsigned type, result still
-            # unsigned".
-            if -2147483647 <= value <= 2147483647:
+        elif valueType == int or valueType == long:  # In Py3 int and long types are the same type.
+            # Int32 range is -2147483648..2147483647
+            if INT_MIN <= value <= INT_MAX:
                 ret.get().SetInt(cefKey, int(value))
             else:
                 # Long values become strings.

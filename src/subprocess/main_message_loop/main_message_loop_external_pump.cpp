@@ -22,19 +22,18 @@ const int32 kTimerDelayPlaceholder = INT_MAX;
 // DoWork().
 const int64 kMaxTimerDelay = 1000 / 30;  // 30fps
 
-::MainMessageLoopExternalPump* g_external_message_pump = NULL;
+::MainMessageLoopExternalPump* g_external_message_pump = nullptr;
 
-} // namespace
+}  // namespace
 
 MainMessageLoopExternalPump::MainMessageLoopExternalPump()
-  : is_active_(false),
-    reentrancy_detected_(false) {
+    : is_active_(false), reentrancy_detected_(false) {
   DCHECK(!g_external_message_pump);
   g_external_message_pump = this;
 }
 
 MainMessageLoopExternalPump::~MainMessageLoopExternalPump() {
-  g_external_message_pump = NULL;
+  g_external_message_pump = nullptr;
 }
 
 MainMessageLoopExternalPump* MainMessageLoopExternalPump::Get() {

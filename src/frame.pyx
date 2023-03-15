@@ -22,8 +22,8 @@ cdef PyFrame GetPyFrameById(int browserId, object frameId):
 
 cdef PyFrame GetPyFrame(CefRefPtr[CefFrame] cefFrame):
     global g_pyFrames
-
-    if <void*>cefFrame == NULL or not cefFrame.get():
+#lc void*
+    if not cefFrame.get():
         raise Exception("GetPyFrame(): CefFrame reference is NULL")
 
     cdef PyFrame pyFrame
@@ -89,7 +89,7 @@ cdef void RemovePyFrame(int browserId, object frameId) except *:
     if uniqueFrameId in g_pyFrames:
         Debug("del g_pyFrames[%s]" % uniqueFrameId)
         pyFrame = g_pyFrames[uniqueFrameId]
-        pyFrame.cefFrame.Assign(NULL)
+        pyFrame.cefFrame.Assign(nullptr)
         del pyFrame
         del g_pyFrames[uniqueFrameId]
         g_unreferenced_frames.append(uniqueFrameId)
@@ -109,7 +109,7 @@ cdef void RemovePyFramesForBrowser(int browserId) except *:
     for uniqueFrameId in toRemove:
         Debug("del g_pyFrames[%s]" % uniqueFrameId)
         pyFrame = g_pyFrames[uniqueFrameId]
-        pyFrame.cefFrame.Assign(NULL)
+        pyFrame.cefFrame.Assign(nullptr)
         del pyFrame
         del g_pyFrames[uniqueFrameId]
         g_unreferenced_frames.append(uniqueFrameId)
@@ -125,16 +125,18 @@ cdef class PyFrame:
         # Do not call IsValid() here, if the frame does not exist
         # then no big deal, no reason to crash the application.
         # The CEF calls will fail, but they also won't cause crash.
-        if <void*>self.cefFrame != NULL and self.cefFrame.get():
+        #lc void*
+        if self.cefFrame.get():
             return self.cefFrame
         raise Exception("PyFrame.GetCefFrame() failed: CefFrame was destroyed")
 
-    def __init__(self, int browserId, int frameId):
+    def __init__(self, int browserId, int64 frameId):
         self.browserId = browserId
         self.frameId = frameId
 
     cpdef py_bool IsValid(self):
-        if <void*>self.cefFrame != NULL and self.cefFrame.get() \
+        #lc void*
+        if self.cefFrame.get() \
                 and self.cefFrame.get().IsValid():
             return True
         return False
@@ -203,12 +205,12 @@ cdef class PyFrame:
     cpdef py_bool IsMain(self):
         return self.GetCefFrame().get().IsMain()
 
-    cpdef py_void LoadString(self, py_string value, py_string url):
-        cdef CefString cefValue
-        cdef CefString cefUrl
-        PyToCefString(value, cefValue)
-        PyToCefString(url, cefUrl)
-        self.GetCefFrame().get().LoadString(cefValue, cefUrl)
+    # cpdef py_void LoadString(self, py_string value, py_string url):
+    #     cdef CefString cefValue
+    #     cdef CefString cefUrl
+    #     PyToCefString(value, cefValue)
+    #     PyToCefString(url, cefUrl)
+    #     self.GetCefFrame().get().LoadString(cefValue, cefUrl)
 
     cpdef py_void LoadUrl(self, py_string url):
         cdef CefString cefUrl
@@ -229,3 +231,31 @@ cdef class PyFrame:
 
     cpdef py_void ViewSource(self):
         self.GetCefFrame().get().ViewSource()
+
+    cdef void SendProcessMessage(self, cef_process_id_t targetProcess,
+            object frameId, py_string messageName, list pyArguments
+            ) except *:
+        cdef CefRefPtr[CefProcessMessage] message = \
+                CefProcessMessage_Create(PyToCefStringValue(messageName))
+        # This does not work, no idea why, the CEF implementation
+        # seems not to allow it, both Assign() and swap() do not work:
+        # | message.get().GetArgumentList().Assign(arguments.get())
+        # | message.get().GetArgumentList().swap(arguments)
+        cdef CefRefPtr[CefListValue] messageArguments = \
+                message.get().GetArgumentList()
+        PyListToExistingCefListValue(self.GetBrowserIdentifier(), 
+                frameId,
+                pyArguments, messageArguments)
+        Debug("SendProcessMessage(): message=%s, arguments size=%d" % (
+                messageName,
+                message.get().GetArgumentList().get().GetSize()))
+        #lc test
+        # cdef cpp_bool success = \
+        #         self.GetCefFrame().get().SendProcessMessage(
+        #                 targetProcess, 
+        #                 message)
+        # if not success:
+        #     raise Exception("Frame.SendProcessMessage() failed: "\
+        #             "messageName=%s" % messageName)
+
+        self.GetCefFrame().get().SendProcessMessage(targetProcess, message)

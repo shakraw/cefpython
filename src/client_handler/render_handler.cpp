@@ -4,42 +4,38 @@
 
 #include "render_handler.h"
 
-
 bool RenderHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser,
-                                      CefRect& rect)
+                                      CefRect &rect)
 {
     REQUIRE_UI_THREAD();
     return RenderHandler_GetRootScreenRect(browser, rect);
 }
 
-
-bool RenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser,
-                                CefRect& rect)
+void RenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser,
+                                CefRect &rect)
 {
     REQUIRE_UI_THREAD();
-    return RenderHandler_GetViewRect(browser, rect);
+    // return RenderHandler_GetViewRect(browser, rect);
+    RenderHandler_GetViewRect(browser, rect);
 }
-
 
 bool RenderHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser,
                                    int viewX,
                                    int viewY,
-                                   int& screenX,
-                                   int& screenY)
+                                   int &screenX,
+                                   int &screenY)
 {
     REQUIRE_UI_THREAD();
     return RenderHandler_GetScreenPoint(browser, viewX, viewY, screenX,
                                         screenY);
 }
 
-
 bool RenderHandler::GetScreenInfo(CefRefPtr<CefBrowser> browser,
-                                  CefScreenInfo& screen_info)
+                                  CefScreenInfo &screen_info)
 {
     REQUIRE_UI_THREAD();
     return RenderHandler_GetScreenInfo(browser, screen_info);
 }
-
 
 void RenderHandler::OnPopupShow(CefRefPtr<CefBrowser> browser,
                                 bool show)
@@ -48,36 +44,33 @@ void RenderHandler::OnPopupShow(CefRefPtr<CefBrowser> browser,
     RenderHandler_OnPopupShow(browser, show);
 }
 
-
 void RenderHandler::OnPopupSize(CefRefPtr<CefBrowser> browser,
-                                const CefRect& rect)
+                                const CefRect &rect)
 {
     REQUIRE_UI_THREAD();
     RenderHandler_OnPopupSize(browser, rect);
 }
 
-
 void RenderHandler::OnPaint(CefRefPtr<CefBrowser> browser,
                             PaintElementType type,
-                            const RectList& dirtyRects,
-                            const void* buffer,
+                            const RectList &dirtyRects,
+                            const void *buffer,
                             int width, int height)
 {
     REQUIRE_UI_THREAD();
-    RenderHandler_OnPaint(browser, type, const_cast<RectList&>(dirtyRects),
+    RenderHandler_OnPaint(browser, type, const_cast<RectList &>(dirtyRects),
                           buffer, width, height);
 }
 
-
-void RenderHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
+bool RenderHandler::OnCursorChange(CefRefPtr<CefBrowser> browser,
                                    CefCursorHandle cursor,
-                                   CursorType type,
-                                   const CefCursorInfo& custom_cursor_info)
+                                   cef_cursor_type_t type,
+                                   const CefCursorInfo &custom_cursor_info)
 {
     REQUIRE_UI_THREAD();
     RenderHandler_OnCursorChange(browser, cursor);
+    return true;
 }
-
 
 void RenderHandler::OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser,
                                           double x,
@@ -86,7 +79,6 @@ void RenderHandler::OnScrollOffsetChanged(CefRefPtr<CefBrowser> browser,
     REQUIRE_UI_THREAD();
     RenderHandler_OnScrollOffsetChanged(browser);
 }
-
 
 bool RenderHandler::StartDragging(CefRefPtr<CefBrowser> browser,
                                   CefRefPtr<CefDragData> drag_data,
@@ -99,7 +91,6 @@ bool RenderHandler::StartDragging(CefRefPtr<CefBrowser> browser,
                                        allowed_ops, x, y);
 }
 
-
 void RenderHandler::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
                                      DragOperation operation)
 {
@@ -108,8 +99,9 @@ void RenderHandler::UpdateDragCursor(CefRefPtr<CefBrowser> browser,
 }
 
 void RenderHandler::OnTextSelectionChanged(CefRefPtr<CefBrowser> browser,
-                            const CefString& selected_text,
-                            const CefRange& selected_range) {
+                                           const CefString &selected_text,
+                                           const CefRange &selected_range)
+{
     REQUIRE_UI_THREAD();
     RenderHandler_OnTextSelectionChanged(browser, selected_text,
                                          selected_range);

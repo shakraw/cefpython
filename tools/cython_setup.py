@@ -147,17 +147,17 @@ def get_winsdk_lib():
     if WINDOWS:
         if ARCH32:
             winsdk_libs = [
+                # Windows 7 SDKs.
                 r"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Lib",
                 r"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.0\\Lib",
-                # Visual Studio 2008 installation
-                r"C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0A\\Lib",
             ]
         elif ARCH64:
             winsdk_libs = [
+                # Windows 7 SDKs.
                 r"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Lib\\x64",
                 r"C:\\Program Files\\Microsoft SDKs\\Windows\\v7.0\\Lib\\x64",
-                # Visual Studio 2008 installation
-                r"C:\\Program Files\\Microsoft SDKs\\Windows\\v6.0A\\Lib\\x64",
+
+                r'C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\lib\\x64',
             ]
         else:
             raise Exception("Unknown architecture")
@@ -214,7 +214,8 @@ def set_compiler_options(options):
 
         extra_compile_args.extend([
                 "-DNDEBUG",
-                "-std=gnu++11",
+                #"-std=gnu++11",
+                "-std=gnu++14",
         ])
 
     if LINUX:
@@ -279,7 +280,8 @@ def set_compiler_options(options):
 
         # LINKER ARGS
         extra_link_args.extend([
-                "-mmacosx-version-min=10.9",
+                #"-mmacosx-version-min=10.9",
+                "-mmacosx-version-min=10.13",
                 "-Wl,-search_paths_first",
                 "-F"+os.path.join(CEF_BINARIES_LIBRARIES, "bin"),
                 "-framework", "Chromium Embedded Framework",
@@ -311,6 +313,7 @@ def get_include_dirs():
     elif MAC:
         include_dirs.extend([MAC_DIR])
         include_dirs.extend(common_include_dirs)
+        include_dirs.extend(["/Users/luca/.pyenv/versions/3.7.9/include/python3.7m"])
         # TODO: Check these directories, are these really required on Mac?
         include_dirs.extend([
             '/usr/include/gtk-2.0',
@@ -318,6 +321,7 @@ def get_include_dirs():
             '/usr/include/gtk-unix-print-2.0',
             '/usr/include/cairo',
             '/usr/include/pango-1.0',
+            '/usr/include/harfbuzz',
             '/usr/include/gdk-pixbuf-2.0',
             '/usr/include/atk-1.0',
             # Fedora
@@ -337,6 +341,7 @@ def get_include_dirs():
             '/usr/include/gtk-unix-print-2.0',
             '/usr/include/cairo',
             '/usr/include/pango-1.0',
+            '/usr/include/harfbuzz',
             '/usr/include/gdk-pixbuf-2.0',
             '/usr/include/atk-1.0',
             # Ubuntu
@@ -361,11 +366,11 @@ def get_library_dirs():
     print("[cython_setup.py] Prepare library directories")
     library_dirs = [
         os.path.join(CEF_BINARIES_LIBRARIES, "lib"),
-        os.path.join(CEF_BINARIES_LIBRARIES, "lib",
-                     get_msvs_for_python(vs_prefix=True)),
     ]
     if WINDOWS:
         library_dirs.extend([
+            os.path.join(CEF_BINARIES_LIBRARIES, "lib",
+                     get_msvs_for_python(vs_prefix=True)),
             get_winsdk_lib(),
             BUILD_CEFPYTHON_APP,
             BUILD_CLIENT_HANDLER,
@@ -431,6 +436,7 @@ def get_ext_modules(options):
         # > Unknown Extension options: 'cython_directives' warnings.warn(msg)
         cython_directives={
             # Any conversion to unicode must be explicit using .decode().
+            "language_level": 2,  # Yes, Py2 for all python versions.
             "c_string_type": "bytes",
             "c_string_encoding": "utf-8",
             "profile": ENABLE_PROFILING,
@@ -468,6 +474,9 @@ def compile_time_constants():
         # A way around Python 3.2 bug: UNAME_SYSNAME is not set
         contents += 'DEF UNAME_SYSNAME = "%s"\n' % platform.uname()[0]
         contents += 'DEF PY_MAJOR_VERSION = %s\n' % sys.version_info.major
+        contents += 'cdef extern from "limits.h":\n'
+        contents += '    cdef int INT_MIN\n'
+        contents += '    cdef int INT_MAX\n'
         fo.write(contents.encode("utf-8"))
 
 

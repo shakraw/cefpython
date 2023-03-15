@@ -14,6 +14,10 @@
 
 #include "include/internal/cef_types_wrappers.h"
 
+
+// Returns the current time in microseconds.
+uint64_t GetTimeNow();
+
 // Set the window's user data pointer.
 void SetUserDataPtr(HWND hWnd, void* ptr);
 
@@ -27,7 +31,7 @@ T GetUserDataPtr(HWND hWnd) {
 WNDPROC SetWndProcPtr(HWND hWnd, WNDPROC wndProc);
 
 // Return the resource string with the specified id.
-//std::wstring GetResourceString(UINT id);
+std::wstring GetResourceString(UINT id);
 
 int GetCefMouseModifiers(WPARAM wparam);
 int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam);

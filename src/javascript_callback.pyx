@@ -28,18 +28,23 @@ cdef class JavascriptCallback:
     def Call(self, *args):
         # Send process message "ExecuteJavascriptCallback".
         if self.frame:
-            browser = self.frame.GetBrowser()
-            if browser:
-                browser.SendProcessMessage(
+            # browser = self.frame.GetBrowser()
+            # if browser:
+            #     browser.SendProcessMessage(
+            #             cef_types.PID_RENDERER,
+            #             self.frame.GetIdentifier(),
+            #             "ExecuteJavascriptCallback",
+            #             [self.callbackId] + list(args))
+            # else:
+            #     # This code probably ain't needed
+            #     raise Exception("JavascriptCallback.Call() FAILED: browser"
+            #                     " not found, callbackId = %s"
+            #                     % self.callbackId)
+            self.frame.SendProcessMessage(
                         cef_types.PID_RENDERER,
                         self.frame.GetIdentifier(),
                         "ExecuteJavascriptCallback",
                         [self.callbackId] + list(args))
-            else:
-                # This code probably ain't needed
-                raise Exception("JavascriptCallback.Call() FAILED: browser"
-                                " not found, callbackId = %s"
-                                % self.callbackId)
         else:
             # This code probably ain't needed
             raise Exception("JavascriptCallback.Call() FAILED: frame not found"

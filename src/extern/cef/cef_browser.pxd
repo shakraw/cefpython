@@ -66,7 +66,7 @@ cdef extern from "include/cef_browser.h":
 
         CefRefPtr[CefRequestContext] GetRequestContext()
 
-        void Find(int identifier, const CefString& searchText, cpp_bool forward,
+        void Find(const CefString& searchText, cpp_bool forward,
                 cpp_bool matchCase, cpp_bool findNext)
         void StopFinding(cpp_bool clearSelection)
         void Print()
@@ -113,5 +113,5 @@ cdef extern from "include/cef_browser.h":
         void StopLoad()
         cpp_bool IsLoading()
         int GetIdentifier()
-        cpp_bool SendProcessMessage(CefProcessId target_process,
-                                    CefRefPtr[CefProcessMessage] message)
+        # cpp_bool SendProcessMessage(CefProcessId target_process,
+        #                             CefRefPtr[CefProcessMessage] message)

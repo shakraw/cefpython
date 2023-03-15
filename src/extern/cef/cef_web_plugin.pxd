@@ -6,9 +6,9 @@ from cef_string cimport CefString
 
 # CEF 3 only.
 
-cdef extern from "include/cef_web_plugin.h":
-    cdef cppclass CefWebPluginInfo:
-        CefString GetName()
-        CefString GetPath()
-        CefString GetVersion()
-        CefString GetDescription()
+# cdef extern from "include/cef_web_plugin.h":
+#     cdef cppclass CefWebPluginInfo:
+#         CefString GetName()
+#         CefString GetPath()
+#         CefString GetVersion()
+#         CefString GetDescription()

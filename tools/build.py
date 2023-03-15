@@ -293,7 +293,8 @@ def setup_environ():
         print("[build.py] PYTHON_INCLUDE: {python_include}"
               .format(python_include=os.environ["PYTHON_INCLUDE"]))
 
-        os.environ["CEF_CCFLAGS"] = "-std=gnu++11 -DNDEBUG -Wall -Werror"
+        #os.environ["CEF_CCFLAGS"] = "-std=gnu++11 -DNDEBUG -Wall -Werror -Wno-deprecated-declarations"
+        os.environ["CEF_CCFLAGS"] = "-std=gnu++14 -DNDEBUG -Wall -Wno-deprecated-declarations"
         if FAST_FLAG:
             os.environ["CEF_CCFLAGS"] += " -O0"
         else:
@@ -318,7 +319,8 @@ def setup_environ():
             raise Exception("Python 32-bit is not supported on Mac")
         os.environ["ARCHFLAGS"] = "-arch x86_64"
         os.environ["CEF_CCFLAGS"] += " -arch x86_64"
-        os.environ["CEF_LINK_FLAGS"] += " -mmacosx-version-min=10.9"
+        #os.environ["CEF_LINK_FLAGS"] += " -mmacosx-version-min=10.9"
+        os.environ["CEF_LINK_FLAGS"] += " -mmacosx-version-min=10.13"
 
         # -Wno-return-type-c-linkage to ignore:
         # > warning: 'somefunc' has C-linkage specified, but returns

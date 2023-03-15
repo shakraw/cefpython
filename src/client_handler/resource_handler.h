@@ -31,11 +31,11 @@ public:
                             int& bytes_read,
                             CefRefPtr<CefCallback> callback) override;
 
-  virtual bool CanGetCookie(const CefCookie& cookie) override;
+  // virtual bool CanGetCookie(const CefCookie& cookie) override;
 
-  virtual bool CanSetCookie(const CefCookie& cookie) override;
+  // virtual bool CanSetCookie(const CefCookie& cookie) override;
 
-  virtual void Cancel() OVERRIDE;
+  virtual void Cancel() override;
     
 private:
   IMPLEMENT_REFCOUNTING(ResourceHandler);

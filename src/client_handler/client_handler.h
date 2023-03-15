@@ -48,6 +48,9 @@ public:
     CefRefPtr<CefDialogHandler> GetDialogHandler() override {
         return this;
     }
+    CefRefPtr<CefPrintHandler> GetPrintHandler() override {
+        return this;
+    }
 #endif
 
     CefRefPtr<CefDisplayHandler> GetDisplayHandler() override {
@@ -87,6 +90,7 @@ public:
     }
 
     bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser,
+                                  CefRefPtr<CefFrame> frame,
                                   CefProcessId source_process,
                                   CefRefPtr<CefProcessMessage> message
                                   ) override;

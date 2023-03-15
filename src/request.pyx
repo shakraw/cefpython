@@ -59,7 +59,8 @@ cdef class PyRequest:
     cdef CefRefPtr[CefRequest] cefRequest
 
     cdef CefRefPtr[CefRequest] GetCefRequest(self) except *:
-        if <void*>self.cefRequest != NULL and self.cefRequest.get():
+        #lc void*
+        if self.cefRequest.get():
             return self.cefRequest
         raise Exception("PyRequest.GetCefRequest() failed: "
                         "CefRequest was destroyed")

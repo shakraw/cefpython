@@ -8,8 +8,7 @@
 
 #include "include/cef_app.h"
 
-MainMessageLoopStd::MainMessageLoopStd() {
-}
+MainMessageLoopStd::MainMessageLoopStd() {}
 
 int MainMessageLoopStd::Run() {
   CefRunMessageLoop();

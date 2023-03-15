@@ -23,9 +23,9 @@ public:
                       const CefString& title,
                       const CefString& default_file_path,
                       const std::vector<CefString>& accept_filters,
-                      int selected_accept_filter,
+                    //   int selected_accept_filter,
                       CefRefPtr<CefFileDialogCallback> callback)
-                      override;
+                      ;
 
 public:
 #if defined(OS_LINUX)
